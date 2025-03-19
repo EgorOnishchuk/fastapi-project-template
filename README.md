@@ -221,10 +221,10 @@ the **ELK stack**) or simple **grep**.
 
 ## Conclusion
 Special thanks to:
-* ![Zhanymkanov's FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices) — best FastAPI 
-  material I have ever seen.
-* ![Reddit discussion](https://www.reddit.com/r/FastAPI/comments/1dsula2/a_good_fastapi_template) — I won't list all
-  the templates I was inspired by, because I'm afraid I'll forget to mention someone. But this discussion contains 
-  many of them.
+* [Zhanymkanov's FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices "Zhanymkanov's FastAPI
+  Best Practices") — best FastAPI material I have ever seen.
+* [Reddit discussion](https://www.reddit.com/r/FastAPI/comments/1dsula2/a_good_fastapi_template "Reddit discussion") — I
+  won't list all the templates I was inspired by, because I'm afraid I'll forget to mention someone. But this 
+  discussion contains many of them.
 
 I always welcome any constructive comments and suggestions, including Pull Requests and Issues.
