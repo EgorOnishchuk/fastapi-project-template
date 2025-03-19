@@ -12,7 +12,8 @@ services:
         extends:
             service: web
         depends_on:
-            - db-prod
+            db-prod:
+                condition: service_healthy
         command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers ${WORKERS:-1} --log-level ${LOG_LEVEL:-trace}
         logging:
             driver: "json-file"
@@ -26,7 +27,8 @@ services:
         extends:
             service: web
         depends_on:
-            - db-dev-test
+            db-dev-test:
+                condition: service_healthy
         entrypoint: sh docker-entrypoint.sh
         command: pytest tests
         profiles:
@@ -36,18 +38,19 @@ services:
         extends:
             service: web
         depends_on:
-            -  db-dev-test
+            db-dev-test:
+                condition: service_healthy
         entrypoint: sh docker-entrypoint.sh
         command: uvicorn src.main:app --host 0.0.0.0 --port 8000
         develop:
             watch:
-                - action: sync+restart
-                  path: .
-                  target: /app
-                  ignore:
-                      - pyproject.toml
-                - action: rebuild
-                  path: pyproject.toml
+                -   action: sync+restart
+                    path: .
+                    target: /app
+                    ignore:
+                        - pyproject.toml
+                -   action: rebuild
+                    path: pyproject.toml
         profiles:
             - dev
 
@@ -58,6 +61,11 @@ services:
             POSTGRES_USER: ${DB_USER}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
             POSTGRES_DB: ${DB_NAME}
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready", "--quiet"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
         profiles:
             - dont-start
 
