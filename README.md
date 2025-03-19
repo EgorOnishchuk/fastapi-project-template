@@ -73,7 +73,8 @@ Leave the current terminal open to be able to monitor logs in real time, create 
 migrations** in it.
 
 ```sh
-docker exec <web container name> yoyo apply --database "$DB_SCHEMA"://"$DB_USER":"$DB_PASSWORD"@"$DB_HOST"/"$DB_NAME" src/db/migrations
+docker exec <web container name> -it sh
+yoyo apply --database "$DB_SCHEMA"://"$DB_USER":"$DB_PASSWORD"@"$DB_HOST"/"$DB_NAME" src/db/migrations
 ```
 
 > In a prod environment (as opposed to dev and test), it is recommended to apply migrations _manually_ as this is a very
@@ -212,7 +213,7 @@ When orchestrating containers, I used several useful solutions:
 
 > I recommend using sh instead of bash for better compatibility across different distributions.
 
-All logs are written to _/var/lib/docker/containers/<container id>/<container id>-json.log_ and can be further used by 
-specialized systems (for example, the **ELK stack**) or simple **grep**.
+All logs are written to _/var/lib/docker/containers_ and can be further used by specialized systems (for example,
+the **ELK stack**) or simple **grep**.
 
 ![Logs](img/logs.png)
