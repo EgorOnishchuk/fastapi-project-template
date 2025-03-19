@@ -18,6 +18,7 @@
         - [Sub-applications](#sub-applications)
     - [Tests](#tests)
     - [Containerization](#containerization)
+- [Conclusion](#conclusion)
 
 ## Introduction
 ### Why this template is needed by community
@@ -39,7 +40,7 @@ with my (_humble_) opinion on what a universal template should be. I tried to:
 which is sometimes redundant. This is relevant in the context of some developers who are unhappy with relational mappers
 and are going back to their roots;
 2. Dependencies — many of the aspects mentioned here can be simplified by using _ready-made libraries_, but as I already
-mentioned, the goal was to create **a universal and lightweight pattern**;
+mentioned, the goal was to create **a universal and lightweight template**;
 3. Full deployment cycle — this template is mostly about **architecture and code**.
 
 ## Getting started
@@ -217,3 +218,13 @@ All logs are written to _/var/lib/docker/containers_ and can be further used by 
 the **ELK stack**) or simple **grep**.
 
 ![Logs](img/logs.png)
+
+## Conclusion
+Special thanks to:
+* ![Zhanymkanov's FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices) — best FastAPI 
+  material I have ever seen.
+* ![Reddit discussion](https://www.reddit.com/r/FastAPI/comments/1dsula2/a_good_fastapi_template) — I won't list all
+  the templates I was inspired by, because I'm afraid I'll forget to mention someone. But this discussion contains 
+  many of them.
+
+I always welcome any constructive comments and suggestions, including Pull Requests and Issues.
