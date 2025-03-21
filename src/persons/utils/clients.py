@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from httpx import AsyncClient, HTTPStatusError, RequestError
@@ -13,21 +13,21 @@ class HTTPClient:
     url: str
     schema: type[Schema]
 
-    session: AsyncClient = AsyncClient()
+    session: AsyncClient = field(default_factory=AsyncClient)
     timeout: float = get_api_settings().timeout
 
     @from_dict()
-    async def request(self, method: str, **kwargs) -> Any:
+    async def request(self, method: str, **kwargs: Any) -> Any:
         try:
             response = await self.session.request(
-                method, self.url, timeout=self.timeout, **kwargs
+                method, self.url, timeout=self.timeout, **kwargs,
             )
-        except RequestError:
-            raise ExternalAPIError
+        except RequestError as exc:
+            raise ExternalAPIError from exc
 
         try:
             response.raise_for_status()
-        except HTTPStatusError:
-            raise ExternalAPIError
+        except HTTPStatusError as exc:
+            raise ExternalAPIError from exc
 
         return response.json()

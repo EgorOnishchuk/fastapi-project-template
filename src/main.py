@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.middleware.cors import CORSMiddleware
 
 from src.dependencies import (
-    get_docs_settings,
     get_compression_settings,
     get_cors_settings,
+    get_docs_settings,
     get_trusted_hosts_settings,
     lifespan,
 )
@@ -35,7 +35,7 @@ for middleware, settings in (
     (GZipMiddleware, get_compression_settings()),
 ):
     app.add_middleware(
-        middleware, **settings.model_dump(by_alias=True, exclude_none=True)
+        middleware, **settings.model_dump(by_alias=True, exclude_none=True),
     )
 
 app.add_middleware(VersionMiddleware, version=get_docs_settings().version)

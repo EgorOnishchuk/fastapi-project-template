@@ -8,7 +8,7 @@ class MockClient:
     schema = PersonCreate
 
     @from_dict()
-    async def request(self, method: str, **kwargs) -> dict[str, Any]:
+    async def request(self, method: str, **kwargs: Any) -> dict[str, Any]:
         return {
             "data": [
                 {
@@ -19,6 +19,6 @@ class MockClient:
                     "phone": "+15516172864",
                     "birthday": "1999-03-16",
                     "gender": "female",
-                }
-            ]
+                },
+            ],
         }

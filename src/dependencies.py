@@ -4,33 +4,34 @@ from functools import lru_cache
 from typing import Annotated
 
 from asyncpg import Connection
+from asyncpg.pool import PoolConnectionProxy
 from fastapi import Depends, FastAPI
 
 from src.db.db_manager import AsyncpgManager
 from src.settings import (
     APISettings,
-    DocsSettings,
-    CORSSettings,
     CompressionSettings,
+    CORSSettings,
     DBSettings,
+    DocsSettings,
     TrustedHostsSettings,
 )
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     async with get_asyncpg_manager():
         yield
 
 
 @lru_cache
 def get_api_settings() -> APISettings:
-    return APISettings()  # type: ignore
+    return APISettings()
 
 
 @lru_cache
 def get_db_settings() -> DBSettings:
-    return DBSettings()  # type: ignore
+    return DBSettings()
 
 
 @lru_cache
@@ -50,7 +51,7 @@ def get_compression_settings() -> CompressionSettings:
 
 @lru_cache
 def get_docs_settings() -> DocsSettings:
-    return DocsSettings()  # type: ignore
+    return DocsSettings()
 
 
 @lru_cache
@@ -61,7 +62,7 @@ def get_asyncpg_manager() -> AsyncpgManager:
 AsyncpgManagerDep = Annotated[AsyncpgManager, Depends(get_asyncpg_manager)]
 
 
-async def get_conn(db_manager: AsyncpgManagerDep) -> Connection:
+async def get_conn(db_manager: AsyncpgManagerDep) -> AsyncGenerator[PoolConnectionProxy]:
     async with db_manager.get_conn() as conn:
         yield conn
 

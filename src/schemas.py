@@ -5,7 +5,6 @@ from typing import Annotated, Any, TypeVar
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-
 NonEmptyStr = Annotated[str, Field(min_length=1)]
 
 SchemaT = TypeVar("SchemaT", bound="Schema")
@@ -48,13 +47,13 @@ def from_res(
 
 
 def from_dict() -> Callable[
-    [Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]
+    [Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]],
 ]:
     return from_res(lambda res, schema: schema(**dict(res)))
 
 
 def from_dicts() -> Callable[
-    [Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]
+    [Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]],
 ]:
     return from_res(lambda seq, schema: [schema(**dict(res)) for res in seq])
 
@@ -64,6 +63,6 @@ class Error(Schema):
     ways_to_solve: Annotated[
         list[NonEmptyStr],
         Field(
-            min_length=1, examples=[["Try again", "Try later", "Contact to support"]]
+            min_length=1, examples=[["Try again", "Try later", "Contact to support"]],
         ),
     ]

@@ -1,7 +1,7 @@
 [project]
 name = "fastapi-project-template"
 version = "0.1.0"
-description = "An intermediate level template for FastAPI application. Flexible and scalable, but not overloaded with abstractions."
+description = "An intermediate level project template. Flexible and scalable, but not overloaded with abstractions."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -31,3 +31,23 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
+exclude = ["src/db/migrations"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+extend-exclude = ["src/db/migrations"]
+
+[tool.ruff.lint]
+select = [
+    "ALL",
+]
+ignore = [
+    "ARG",
+    "D",
+    "EM",
+
+    "ANN401",
+    "S101",
+    "TRY003",
+]

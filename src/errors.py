@@ -10,21 +10,21 @@ validation_response: dict[int, dict[str, str | type[list[Error]]]] = {
     status.HTTP_422_UNPROCESSABLE_ENTITY: {
         "description": "Input does not match required format.",
         "model": list[Error],
-    }
+    },
 }
 
 db_conn_response: dict[int, dict[str, str | type[Error]]] = {
     status.HTTP_503_SERVICE_UNAVAILABLE: {
         "description": "Failed to establish the connection to the database.",
         "model": Error,
-    }
+    },
 }
 
 unexpected_exception_response: dict[int, dict[str, str | type[Error]]] = {
     status.HTTP_500_INTERNAL_SERVER_ERROR: {
         "description": "An unexpected exception occurred that could not be classified.",
         "model": Error,
-    }
+    },
 }
 
 
@@ -44,7 +44,7 @@ def handle(errors: list[dict[str, str | list[str]]], status_code: int) -> JSONRe
 
 
 async def validation_handler(
-    request: Request, exc: RequestValidationError
+    request: Request, exc: RequestValidationError,
 ) -> JSONResponse:
     LOGGER.debug(exc)
 
@@ -77,7 +77,7 @@ async def external_api_handler(request: Request, exc: ExternalAPIError) -> JSONR
             {
                 "reason": exc.args[0],
                 "ways_to_solve": ["Try later", "Contact with data provider."],
-            }
+            },
         ],
         status.HTTP_503_SERVICE_UNAVAILABLE,
     )
@@ -93,7 +93,7 @@ async def route_not_found_handler(request: Request, exc: HTTPException) -> JSONR
 
 
 async def unexpected_exception_handler(
-    request: Request, exc: Exception
+    request: Request, exc: Exception,
 ) -> JSONResponse:
     LOGGER.critical(exc)
 

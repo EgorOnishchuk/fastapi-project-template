@@ -16,4 +16,4 @@ class AsyncpgDAL(DAL):
 
     @from_dicts()
     async def _read_all(self) -> list[Record]:
-        return await self._conn.fetch(f"SELECT * FROM {self.schema.__name__.lower()}")
+        return await self._conn.fetch(f"SELECT * FROM {self.schema.__name__.lower()}") # noqa: S608

@@ -13,7 +13,7 @@ from src.persons.utils.clients import HTTPClient
 @lru_cache
 def get_fakerapi_client() -> HTTPClient:
     return HTTPClient(
-        url="https://fakerapi.it/api/v2/persons?_quantity=1", schema=PersonCreate
+        url="https://fakerapi.it/api/v2/persons?_quantity=1", schema=PersonCreate,
     )
 
 
@@ -30,7 +30,7 @@ PersonAsyncpgDALDep = Annotated[PersonDAL, Depends(get_person_asyncpg_dal)]
 
 @lru_cache
 def get_person_service(
-    person_client: FakerAPIClientDep, person_dal: PersonAsyncpgDALDep
+    person_client: FakerAPIClientDep, person_dal: PersonAsyncpgDALDep,
 ) -> PersonService:
     return PersonService(person_client=person_client, person_dal=person_dal)
 

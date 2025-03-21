@@ -24,7 +24,7 @@ class DBManager(ABC):
 
     @abstractmethod
     @asynccontextmanager
-    async def get_conn(self) -> AsyncGenerator[Any, None]:
+    async def get_conn(self) -> AsyncGenerator[Any]:
         pass
 
     @abstractmethod
@@ -45,15 +45,14 @@ class AsyncpgManager(DBManager):
     pool: Pool | None = None
 
     @asynccontextmanager
-    async def get_conn(self) -> AsyncGenerator[PoolConnectionProxy, None]:
+    async def get_conn(self) -> AsyncGenerator[PoolConnectionProxy]:
         try:
-            async with self.pool.acquire(timeout=self.timeout) as conn:
-                async with conn.transaction():
-                    yield conn
-        except CancelledError:
-            raise DBConnError
+            async with self.pool.acquire(timeout=self.timeout) as conn, conn.transaction():
+                yield conn
+        except CancelledError as exc:
+            raise DBConnError from exc
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         self.pool = await create_pool(
             f"postgresql://{self.settings.user}:{self.settings.password}@{self.settings.host}"
             f"/{self.settings.db_name}",
@@ -71,8 +70,8 @@ class AsyncpgManager(DBManager):
     ) -> None:
         if self.clear:
             async with self.get_conn() as conn:
-                conn.execute(
+                await conn.execute(
                     f"TRUNCATE"
-                    f" {', '.join(cls.schema.__name__.lower() for cls in AsyncpgDAL.__subclasses__())}"
+                    f" {', '.join(cls.schema.__name__.lower() for cls in AsyncpgDAL.__subclasses__())}",
                 )
         await self.pool.close()

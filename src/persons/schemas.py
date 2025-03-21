@@ -11,7 +11,7 @@ class PersonCreate(Schema):
         NonEmptyStr,
         Field(
             validation_alias=AliasChoices(
-                AliasPath("data", 0, "firstname"), "firstName"
+                AliasPath("data", 0, "firstname"), "firstName",
             ),
             max_length=100,
             examples=["Rosa"],
@@ -33,7 +33,7 @@ class PersonCreate(Schema):
     birthdate: Annotated[
         PastDate,
         Field(
-            validation_alias=AliasPath("data", 0, "birthday"), examples=["1999-03-16"]
+            validation_alias=AliasPath("data", 0, "birthday"), examples=["1999-03-16"],
         ),
     ]
 

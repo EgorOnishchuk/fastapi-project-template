@@ -17,5 +17,5 @@ class TestPersonAPI(TestAPI):
                 person["lastName"] == "Sanford",
                 person["birthdate"] == "1999-03-16",
                 person["gender"] == "female",
-            )
+            ),
         )

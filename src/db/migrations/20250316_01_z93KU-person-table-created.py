@@ -1,5 +1,4 @@
-"""
-Person table created
+"""Person table created
 """
 
 from yoyo import step
@@ -18,5 +17,5 @@ steps = [
         )
         """,
         "DROP TABLE IF EXISTS person",
-    )
+    ),
 ]

@@ -13,6 +13,6 @@ def db_manager() -> AsyncpgManager:
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def operate_tables(db_manager: AsyncpgManager) -> AsyncGenerator[None, None]:
+async def operate_tables(db_manager: AsyncpgManager) -> AsyncGenerator[None]:
     async with db_manager:
         yield

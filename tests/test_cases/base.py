@@ -4,9 +4,9 @@ from typing import Any
 
 import pytest
 import pytest_asyncio
+from asgi_lifespan import LifespanManager
 from asyncpg.pool import PoolConnectionProxy
 from httpx import ASGITransport, AsyncClient
-from asgi_lifespan import LifespanManager
 
 from src.db.db_manager import AsyncpgManager
 from src.dependencies import get_api_settings
@@ -24,9 +24,8 @@ class TestAPI(ABC):
         app.dependency_overrides[get_fakerapi_client] = lambda: MockClient()
 
     @pytest_asyncio.fixture()
-    async def session(self) -> AsyncGenerator[AsyncClient, None]:
-        async with LifespanManager(app) as manager:
-            async with AsyncClient(
+    async def session(self) -> AsyncGenerator[AsyncClient]:
+        async with LifespanManager(app) as manager, AsyncClient(
                 transport=ASGITransport(
                     app=manager.app,
                     client=(get_api_settings().host, get_api_settings().port),
@@ -42,7 +41,7 @@ class TestUnit(ABC):
 
     @pytest_asyncio.fixture
     async def conn_(
-        self, db_manager: AsyncpgManager
-    ) -> AsyncGenerator[PoolConnectionProxy, None]:
+        self, db_manager: AsyncpgManager,
+    ) -> AsyncGenerator[PoolConnectionProxy]:
         async with db_manager.get_conn() as conn:
             yield conn
