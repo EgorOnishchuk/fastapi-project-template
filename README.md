@@ -7,6 +7,7 @@
     - [Local development](#local-development)
 - [Documentation](#documentation)
     - [Source code](#source-code)
+        - [Architecture](#architecture)
         - [Main](#main)
         - [Settings](#settings)
         - [Middlewares](#middlewares)
@@ -15,46 +16,65 @@
         - [Models](#models)
         - [Dependencies](#dependencies)
         - [Data access layer](#data-access-layer)
-        - [Sub-applications](#sub-applications)
     - [Tests](#tests)
     - [Containerization](#containerization)
 - [Conclusion](#conclusion)
 
 ## Introduction
 ### Why this template is needed by community
-Templates are important. They allow us not only to reduce the amount of boilerplate code we need to write from project
+Templates are important. They allow us not only to reduce the amount of _boilerplate code_ we need to write from project
 to project (especially in microframeworks like FastAPI), but also to compare the **approaches and thinking of different
 developers**. Understanding this, I analyzed many of them and came to the conclusion that I should provide the community
 with my (_humble_) opinion on what a universal template should be. I tried to:
-* find **a middle ground between the simplicity and immediacy of the code and the capabilities of abstraction layers**.
- Some projects limit the _business logic layer_ to one file, while others actively use _DDD_. I think the balance is
- somewhere in the middle;
-* **make examples minimalistic and unrelated to a specific real task**, so that we do not get distracted from the 
- _concept itself_. At the same time, understanding them, you can write the ones you need by analogy;
-* to show **not so popular but useful features** that I discovered in _FastAPI, Pydantic and Docker_;
-* to provide each interesting point with _detailed documentation_, so that you can consider this README as a 
- _template and best practices_ bundled together or even **a small handbook**.
+* find **a middle ground** between the simplicity and immediacy of the code and the capabilities of abstraction layers.
+  Some projects limit the _business logic layer_ to one file, while others actively use _DDD_. I think the balance is
+  somewhere in the middle;
+* make examples **minimalistic and unrelated to a specific real task**, so that we do not get distracted from the 
+  concept itself. At the same time, understanding them, you can write the ones you need by analogy;
+* to show **not so popular but useful features** that I discovered in FastAPI, _Pydantic_ and _Docker_;
+* to provide each interesting point with detailed documentation, so that you can consider this README as a 
+  template and _best practices_ bundled together or even **a small handbook**.
 
 ### What is not covered and why
-1. _ORM_ — the main storage implementation is written in **raw SQL (asyncpg)**, since most of the templates use _ORM_,
+1. _ORM_ — the main storage implementation is written in **raw SQL (asyncpg)**, since most of the templates use ORM,
 which is sometimes redundant. This is relevant in the context of some developers who are unhappy with relational mappers
 and are going back to their roots;
 2. Dependencies — many of the aspects mentioned here can be simplified by using _ready-made libraries_, but as I already
 mentioned, the goal was to create **a universal and lightweight template**;
-3. Full deployment cycle — this template is mostly about **architecture and code**.
+3. Full deployment cycle — this template is mostly about **architecture and code**, not infrastructure.
 
 ## Getting started
 ### Out of the box usage
-The easiest way to start a new project based on this template is to create a new repository via the _GitHub GUI_: click
-the green «Use this template» button and select the **«Create a new repository»** option.
+The easiest way to start a new project based on this template is to create a new repository via the GitHub GUI: click
+the green _Use this template_ button and select the _Create a new repository_ option.
 
 ![Cloning](img/cloning.png)
 
 After cloning the repository to your local machine, you need to create a **.env** file in the root of the project using
-the **.env.template**. Next, check for the latest version of **Docker** (I strongly recommend using the [official
-instructions](https://docs.docker.com/engine/install/ "Docker documentation")).
+the **.env.template**. It might look like this.
 
-The best practice is to test the project before each deployment - let's do this:
+```
+API_HOST=web-dev
+API_PORT=8000
+
+DB_SCHEMA=postgresql
+DB_HOST=db-dev-test
+DB_USER=user
+DB_PASSWORD=password
+DB_NAME=fastapi
+
+TITLE=Fastapi project template
+SUMMARY=An intermediate level project template. Flexible and scalable, but not overloaded with abstractions.
+VERSION=0.1.0
+CONTACT={"name": "Egor Onishchuk", "url": "https://github.com/EgorOnishchuk", "email": "egor_onishchuk@mail.ru"}
+LICENSE={"name": "MIT", "url": "https://opensource.org/license/mit"}
+
+DOCS=/docs
+```
+
+Next, check for the latest version of **Docker** (I strongly recommend using the [official
+instructions](https://docs.docker.com/engine/install/ "Docker documentation")). The best practice is to test the project
+before each deployment - let's do this:
 
 ```sh
 docker compose --profile test up
@@ -74,12 +94,15 @@ Leave the current terminal open to be able to monitor logs in real time, create 
 migrations** in it.
 
 ```sh
-docker exec <web container name> -it sh
+docker exec -it <web container name> sh
 yoyo apply --database "$DB_SCHEMA"://"$DB_USER":"$DB_PASSWORD"@"$DB_HOST"/"$DB_NAME" src/db/migrations
 ```
 
-> In a prod environment (as opposed to dev and test), it is recommended to apply migrations _manually_ as this is a very
-> responsible action.
+> In a prod environment (as opposed to dev and test), it is recommended to apply migrations manually as this is **a very
+> responsible action**.
+>
+> When choosing a migrator, I settled on _Yo-yo_, because Alembic has redundant functionality for raw SQL. Changes are
+> applied synchronously, so in addition to asyncpg, we also needed _psycopg2_.
 
 Your project should now be accessible at **http://localhost** on the specified port.
 
@@ -90,7 +113,6 @@ synchronize the dependencies.
 
 ```sh
 uv sync
-uv sync --group dev
 ```
 
 Additionally, you can install **Hadolint** to lint Dockerfiles.
@@ -104,9 +126,80 @@ sudo mv hadolint /usr/local/bin/hadolint
 
 ## Documentation
 ### Source code
+#### Architecture
 The application structure is a **layered architecture** divided into «sub-applications», which are somewhat similar to
 _domains_, but have less strict rules of formation compared to domains from DDD. This division is inspired by _Django_,
 where a «project» can have several **MVPs**, called «applications».
+
+The idea is that the structure of each sub-application should be similar to the structure of the main application.
+The only difference is that top-level schemas, models, repositories, exceptions, etc. are used **throughout the 
+project**, while the same modules of nested levels are specific to a **particular domain**.
+
+To summarize:
+
+- each path handler should ideally have only one line of code - **a call to a service method** passed as a dependency. 
+  This completely decouples the logic from the infrastructure, improves testability and debugging;
+- the service aggregates all dependencies in compliance with the **dependency inversion principle**;
+- a _separate folder_ is provided for utils, since such code tends to grow quickly and can become unreadable when 
+  using a single _utils.py_ file;
+- each domain may not have a storage or use the storage of another domain (for example, acting as an **aggregator**),
+  but must have a service, at least one dependency, and, most likely, utils.
+
+```
+.
+├── src
+|   ├── main.py
+│   └── settings.py
+│   ├── middlewares.py
+│   ├── errors.py
+│   ├── schemas.py
+│   ├── models.py
+│   ├── dependencies.py
+│   ├── data_access_layer.py
+│   ├── db
+│   │   ├── db_manager.py
+│   │   └── migrations
+│   │       └── # many Python/SQL files with changes steps
+|   |
+│   ├── persons # Only name the domain «persons» if your business actually calls it «persons».
+│   │   ├── data_access_layer.py
+│   │   ├── dependencies.py
+│   │   ├── errors.py
+│   │   ├── models.py
+│   │   ├── router.py
+│   │   ├── schemas.py
+│   │   ├── service.py
+│   │   └── utils
+│   │       ├── __init__.py
+│   │       └── clients.py
+|   |
+│   ├── reports # Only name the domain «reports» if your business actually calls it «reports».
+│   │   ├── __init__.py
+│   │   ├── dependencies.py
+│   │   ├── router.py
+│   │   ├── schemas.py
+│   │   └── service.py
+|   |
+├── tests
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── factories.py
+│   ├── test_cases
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── test_persons.py
+│   │   └── test_reports.py
+│   └── utils
+│       ├── __init__.py
+│       └── clients.py
+```
+
+> Only use async functions (including path handlers) when you're truly dealing with _non-blocking I/O_.
+> [Great explanation](https://github.com/zhanymkanov/fastapi-best-practices/tree/master?tab=readme-ov-file#async-routes
+> "Zhanymkanov best practices") of what the opposite can lead to.
+
+Here are some details of the code techniques using the main application modules as an example. In the sub-applications,
+everything is made by analogy.
 
 #### Main
 Here all components (routers, error handlers, and middleware) are assembled. I prefer to explicitly manage their
@@ -117,8 +210,8 @@ ready-made HTML pages: they can be placed in separate prefixes. This approach ha
 other proxy servers.
 
 #### Settings
-Logging is the part where you need to write quite a lot of boilerplate code, so I prefer to use the **built-in Uvicorn
-logger**. It logs all endpoint requests and application startup and shutdown information out of the box, but can
+**Logging** is the part where you need to write quite a lot of boilerplate code, so I prefer to use the _built-in Uvicorn
+logger_. It logs all endpoint requests and application startup and shutdown information out of the box, but can
 also be used for custom messages. You will learn more about log collection in the section on _containerization_.
 
 #### Middlewares
@@ -168,33 +261,13 @@ layer by the abstract term _data access layer_ to avoid joining the endless deba
 It is convenient to store a _mixin class_ here, which implements typical scenarios of interaction with the database, for
 example **CRUD**.
 
-#### Sub-applications
-
-The idea is that the structure of each _sub-application_ should be similar to the structure of the _main application_.
-The only difference is that top-level schemas, models, repositories, exceptions, etc. are used **throughout the 
-project**, while the same modules of nested levels are specific to a **particular domain**.
-
-To summarize:
-
-- each path handler should ideally have only one line of code - **a call to a service method** passed as a dependency. 
-  This completely decouples the logic from the infrastructure, improves testability and debugging;
-- the service aggregates all dependencies in compliance with the **dependency inversion principle**;
-- a _separate folder_ is provided for utils, since such code tends to grow quickly and can become unreadable when 
-  using a single _utils.py_ file;
-- each domain may not have a storage or use the storage of another domain (for example, acting as an **aggregator**),
-  but must have a service, dependencies, and, most likely, utils.
-
-> Only use async functions (including path handlers) when you're truly dealing with **non-blocking I/O**.
-> [Great explanation](https://github.com/zhanymkanov/fastapi-best-practices/tree/master?tab=readme-ov-file#async-routes
-> "Zhanymkanov best practices") of what the opposite can lead to.
-
 ### Tests
 In my experience, **Pytest** is most often used with a _procedurally oriented approach_, and a significant part of the
 fixtures are stored in **conftest.py**. I prefer to write there only those that relate to the entire testing process,
 and distribute the rest of the fixtures among test classes, even using test case inheritance. I consider the 
 **integration of OOP and testing** to be an underestimated approach.
 
-The structure of the _test application_ should generally follow the structure of the application itself, with one test
+The structure of the test application should generally follow the structure of the application itself, with one test
 file per domain. I have provided one example of _unit_ and _integration_ tests. Their ratio should be determined 
 depending both on the specific of your project and testing pyramid principles. If you decide to use ORM, I recommend 
 using test _factories_ to generate more reliable information.
