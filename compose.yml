@@ -16,10 +16,10 @@ services:
                 condition: service_healthy
         command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers ${WORKERS:-1} --log-level ${LOG_LEVEL:-trace}
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10m"
-                max-file: "3"
+                max-size: 10m
+                max-file: 3
         profiles:
             - prod
 
@@ -62,10 +62,10 @@ services:
             POSTGRES_PASSWORD: ${DB_PASSWORD}
             POSTGRES_DB: ${DB_NAME}
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready", "--quiet"]
+            test: pg_isready -U ${DB_USER} -d ${DB_NAME}
             interval: 10s
-            timeout: 3s
-            retries: 5
+            timeout: 5s
+            retries: 3
         profiles:
             - dont-start
 
@@ -75,10 +75,10 @@ services:
         volumes:
             - data:/var/lib/postgresql/data
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "3m"
-                max-file: "1"
+                max-size: 3m
+                max-file: 1
         profiles:
             - prod
 
