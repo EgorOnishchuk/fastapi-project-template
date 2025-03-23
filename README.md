@@ -1,3 +1,11 @@
+<p align="center">
+    <img src="img/logo.png" width="600">
+</p>
+
+![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+
 ## Table of contents
 - [Introduction](#introduction)
     - [Why this template is needed by community](#why-this-template-is-needed-by-community)
