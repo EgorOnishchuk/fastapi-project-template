@@ -25,14 +25,17 @@ class TestAPI(ABC):
 
     @pytest_asyncio.fixture()
     async def session(self) -> AsyncGenerator[AsyncClient]:
-        async with LifespanManager(app) as manager, AsyncClient(
+        async with (
+            LifespanManager(app) as manager,
+            AsyncClient(
                 transport=ASGITransport(
                     app=manager.app,
                     client=(get_api_settings().host, get_api_settings().port),
                 ),
                 base_url="http://test",
-            ) as session:
-                yield session
+            ) as session,
+        ):
+            yield session
 
 
 class TestUnit(ABC):
@@ -41,7 +44,8 @@ class TestUnit(ABC):
 
     @pytest_asyncio.fixture
     async def conn_(
-        self, db_manager: AsyncpgManager,
+        self,
+        db_manager: AsyncpgManager,
     ) -> AsyncGenerator[PoolConnectionProxy]:
         async with db_manager.get_conn() as conn:
             yield conn

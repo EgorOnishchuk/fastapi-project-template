@@ -20,7 +20,10 @@ class HTTPClient:
     async def request(self, method: str, **kwargs: Any) -> Any:
         try:
             response = await self.session.request(
-                method, self.url, timeout=self.timeout, **kwargs,
+                method,
+                self.url,
+                timeout=self.timeout,
+                **kwargs,
             )
         except RequestError as exc:
             raise ExternalAPIError from exc

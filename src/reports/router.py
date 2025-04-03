@@ -21,8 +21,7 @@ router = APIRouter(prefix="/reports", tags=["Reports"])
     responses={**db_conn_response, **unexpected_exception_response},
 )
 async def get_official_report(report_service: ReportServiceDep) -> OfficialReport:
-    """Retrieves and returns a report generated of all stored persons.
-    """
+    """Retrieves and returns a report generated of all stored persons."""
     return await report_service.create_report()
 
 
@@ -37,6 +36,5 @@ async def get_official_report(report_service: ReportServiceDep) -> OfficialRepor
     },
 )
 def get_custom_report(persons: list[PersonCreate]) -> CustomReport:
-    """Retrieves and returns a report generated of all supplied persons.
-    """
+    """Retrieves and returns a report generated of all supplied persons."""
     return ReportService.create_custom_report(persons)

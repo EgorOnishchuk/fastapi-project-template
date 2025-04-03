@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import cast
 
 from src.data_access_layer import AsyncpgDAL
 from src.persons.schemas import Person, PersonCreate
@@ -11,6 +12,8 @@ class PersonDAL(ABC):
         pass
 
     @abstractmethod
+    @from_dict()
+    @Schema.to_tuple
     async def write(self, person: PersonCreate) -> Person:
         pass
 
@@ -24,8 +27,9 @@ class PersonAsyncpgDAL(PersonDAL, AsyncpgDAL):
     @from_dict()
     @Schema.to_tuple
     async def write(self, person: PersonCreate) -> Person:
-        return await self._conn.fetchrow(
-            f"INSERT INTO {self.schema.__name__.lower()} (first_name, last_name, gender, birthdate) " # noqa: S608
+        row = await self._conn.fetchrow(
+            f"INSERT INTO {self.schema.__name__.lower()} (first_name, last_name, gender, birthdate) "  # noqa: S608
             "VALUES ($1, $2, $3, $4) RETURNING *",
             *person,
         )
+        return cast(Person, row)

@@ -7,7 +7,6 @@ from types import TracebackType
 from typing import Any
 
 from asyncpg import Pool, create_pool
-from asyncpg.pool import PoolConnectionProxy
 
 from src.data_access_layer import AsyncpgDAL
 from src.errors import DBConnError
@@ -45,7 +44,9 @@ class AsyncpgManager(DBManager):
     pool: Pool | None = None
 
     @asynccontextmanager
-    async def get_conn(self) -> AsyncGenerator[PoolConnectionProxy]:
+    async def get_conn(self) -> AsyncGenerator[Any]:
+        assert self.pool is not None
+
         try:
             async with self.pool.acquire(timeout=self.timeout) as conn, conn.transaction():
                 yield conn
@@ -54,8 +55,7 @@ class AsyncpgManager(DBManager):
 
     async def __aenter__(self) -> None:
         self.pool = await create_pool(
-            f"postgresql://{self.settings.user}:{self.settings.password}@{self.settings.host}"
-            f"/{self.settings.db_name}",
+            f"postgresql://{self.settings.user}:{self.settings.password}@{self.settings.host}/{self.settings.db_name}",
             **self.settings.model_dump(
                 by_alias=True,
                 exclude={"dsn", "timeout", "user", "password", "host", "db_name"},
@@ -68,10 +68,11 @@ class AsyncpgManager(DBManager):
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
+        assert self.pool is not None
+
         if self.clear:
             async with self.get_conn() as conn:
                 await conn.execute(
-                    f"TRUNCATE"
-                    f" {', '.join(cls.schema.__name__.lower() for cls in AsyncpgDAL.__subclasses__())}",
+                    f"TRUNCATE {', '.join(cls.schema.__name__.lower() for cls in AsyncpgDAL.__subclasses__())}",
                 )
         await self.pool.close()

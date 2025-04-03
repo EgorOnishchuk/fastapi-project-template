@@ -35,16 +35,14 @@ class DBConnError(ConnectionError):
 
 def handle(errors: list[dict[str, str | list[str]]], status_code: int) -> JSONResponse:
     return JSONResponse(
-        [
-            Error(**content).model_dump(mode="json", exclude_none=True)
-            for content in errors
-        ],
+        [Error(**content).model_dump(mode="json", exclude_none=True) for content in errors],
         status_code,
     )
 
 
 async def validation_handler(
-    request: Request, exc: RequestValidationError,
+    request: Request,
+    exc: RequestValidationError,
 ) -> JSONResponse:
     LOGGER.debug(exc)
 
@@ -93,7 +91,8 @@ async def route_not_found_handler(request: Request, exc: HTTPException) -> JSONR
 
 
 async def unexpected_exception_handler(
-    request: Request, exc: Exception,
+    request: Request,
+    exc: Exception,
 ) -> JSONResponse:
     LOGGER.critical(exc)
 

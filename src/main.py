@@ -35,7 +35,8 @@ for middleware, settings in (
     (GZipMiddleware, get_compression_settings()),
 ):
     app.add_middleware(
-        middleware, **settings.model_dump(by_alias=True, exclude_none=True),
+        middleware,
+        **settings.model_dump(by_alias=True, exclude_none=True),
     )
 
 app.add_middleware(VersionMiddleware, version=get_docs_settings().version)

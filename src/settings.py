@@ -25,7 +25,9 @@ ENDPOINT: re.Pattern[str] = re.compile(
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
 
@@ -34,7 +36,8 @@ class APISettings(Settings):
     port: Annotated[PositiveInt, Field(le=65535, validation_alias="api_port")]
 
     timeout: Annotated[
-        PositiveFloat, Field(validation_alias="external_api_timeout"),
+        PositiveFloat,
+        Field(validation_alias="external_api_timeout"),
     ] = 10.0
 
 
@@ -72,26 +75,30 @@ class CORSSettings(Settings):
     }
 
     allowed_origins: Annotated[
-        list[HttpUrl] | None, Field(serialization_alias="allow_origins"),
+        list[HttpUrl] | None,
+        Field(serialization_alias="allow_origins"),
     ] = None
     allowed_origin_regex: Annotated[
-        str | None, Field(serialization_alias="allow_origin_regex"),
+        str | None,
+        Field(serialization_alias="allow_origin_regex"),
     ] = None
     allowed_methods: Annotated[
-        list[NonEmptyStr] | None, Field(serialization_alias="allow_methods"),
+        list[NonEmptyStr] | None,
+        Field(serialization_alias="allow_methods"),
     ] = None
     allowed_headers: Annotated[
-        list[NonEmptyStr] | None, Field(serialization_alias="allow_headers"),
+        list[NonEmptyStr] | None,
+        Field(serialization_alias="allow_headers"),
     ] = None
     is_credentials: Annotated[
-        bool | None, Field(serialization_alias="allow_credentials"),
+        bool | None,
+        Field(serialization_alias="allow_credentials"),
     ] = None
     exposed_headers: Annotated[
-        list[NonEmptyStr] | None, Field(serialization_alias="expose_headers"),
+        list[NonEmptyStr] | None,
+        Field(serialization_alias="expose_headers"),
     ] = None
-    cache_time: Annotated[PositiveInt | None, Field(serialization_alias="max_age")] = (
-        None
-    )
+    cache_time: Annotated[PositiveInt | None, Field(serialization_alias="max_age")] = None
 
     @field_validator("allowed_methods")
     @classmethod
@@ -104,10 +111,12 @@ class CORSSettings(Settings):
 
 class CompressionSettings(Settings):
     min_size: Annotated[
-        PositiveInt | None, Field(serialization_alias="minimum_size"),
+        PositiveInt | None,
+        Field(serialization_alias="minimum_size"),
     ] = None
     level: Annotated[
-        PositiveInt | None, Field(serialization_alias="compresslevel", le=9),
+        PositiveInt | None,
+        Field(serialization_alias="compresslevel", le=9),
     ] = None
 
 
@@ -127,11 +136,14 @@ class DocsSettings(Settings):
     }
 
     openapi: Annotated[
-        str | None, Field(serialization_alias="openapi_url", pattern=ENDPOINT),
+        str | None,
+        Field(serialization_alias="openapi_url", pattern=ENDPOINT),
     ] = None
     docs: Annotated[
-        str | None, Field(serialization_alias="docs_url", pattern=ENDPOINT),
+        str | None,
+        Field(serialization_alias="docs_url", pattern=ENDPOINT),
     ] = None
     redoc: Annotated[
-        str | None, Field(serialization_alias="redoc_url", pattern=ENDPOINT),
+        str | None,
+        Field(serialization_alias="redoc_url", pattern=ENDPOINT),
     ] = None

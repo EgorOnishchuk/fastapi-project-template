@@ -17,8 +17,7 @@ router = APIRouter(prefix="/persons", tags=["Persons"])
     responses={**db_conn_response, **unexpected_exception_response},
 )
 async def get_all(person_service: PersonServiceDep) -> list[Person]:
-    """Retrieves and returns all stored persons.
-    """
+    """Retrieves and returns all stored persons."""
     return await person_service.get_all()
 
 
@@ -38,6 +37,5 @@ async def get_all(person_service: PersonServiceDep) -> list[Person]:
     },
 )
 async def create_random(person_service: PersonServiceDep) -> Person:
-    """Creates, saves and returns a random person retrieved from an external API.
-    """
+    """Creates, saves and returns a random person retrieved from an external API."""
     return await person_service.create_random()
